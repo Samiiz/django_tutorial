@@ -1,7 +1,10 @@
 # Idea Project
 .idea/
 
-#Python
+# Python
 __pycache__/
 .venv
 venv
+
+# Secret
+.env

@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
-
+from dotenv import load_dotenv
 import pymysql
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -76,13 +76,15 @@ WSGI_APPLICATION = "tutorial.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+load_dotenv(dotenv_path=".env")
+
 pymysql.install_as_MySQLdb()
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "oz_tutorial",
-        "USER": "root",
-        "PASSWORD": "samiiz",
+        "NAME": os.environ.get("DB_DATABASE"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": "localhost",
         "PORT": "3306",
     }
