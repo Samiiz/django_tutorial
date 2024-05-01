@@ -1,8 +1,8 @@
 import json
-from django.test import TestCase, Client
+
+from django.test import Client, TestCase
 
 from article.models import Article, Comment
-
 
 # Create your tests here.
 
