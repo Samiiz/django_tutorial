@@ -22,7 +22,7 @@ jobs:
 
       - name: Set timezone to KST
         run: |
-          sudo rm /ect/localtime
+          sudo rm /etc/localtime
           sudo ln -s /usr/share/zoneinfo/Asia/Seoul /ect/localtime
 
       - name: Start Mysql
