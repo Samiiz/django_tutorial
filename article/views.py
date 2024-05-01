@@ -27,7 +27,7 @@ class CommentView(View):
             errors.append("Missing author")
         elif not isinstance(body["author"], str):
             errors.append(f"author is not a string. received: {body['author']}")
-        if 'body' not in body:
+        if "body" not in body:
             errors.append("Missing body")
         elif not isinstance(body["body"], str):
             errors.append(f"body is not a string. received: {body['body']}")
