@@ -1,9 +1,7 @@
-name: Use Python Poetry cache on GitHub Actions workflow
+name: Continuous Integration
 
 on:
   push:
-    branches:
-      - main
 
 env:
   PYTHON_VERSION: "3.12"
@@ -20,13 +18,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-        id: setup_python
+        id: setup-python
 
       - name: Set timezone to KST
         run: |
@@ -39,19 +37,17 @@ jobs:
           mysql -e "use mysql; FLUSH PRIVILEGES; ALTER USER '${{ env.DB_USER }}'@'localhost' IDENTIFIED BY '${{ env.DB_PASSWORD }}';" -uroot -proot
           mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
 
-      # Poetry cache depends on OS, Python version and Poetry version.
       - name: Cache Poetry cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/pypoetry
-          key: poetry-cache-${{ runner.os }}-${{ steps.setup_python.outputs.python-version }}-${{ env.POETRY_VERSION }}
+          key: poetry-cache-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ env.POETRY_VERSION }}
 
-      # virtualenv cache should depends on OS, Python version and `poetry.lock` (and optionally workflow files).
       - name: Cache Packages
         uses: actions/cache@v3
         with:
           path: ~/.local
-          key: poetry-local-${{ runner.os }}-${{ steps.setup_python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+          key: poetry-local-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
 
       - name: Install Poetry ${{ env.POETRY_VERSION }}
         run: |
