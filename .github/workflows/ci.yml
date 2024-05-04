@@ -35,14 +35,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pypoetry
-          key: poetry-cache-${{ runner.os }}-3.12-1.8.2
+          key: poetry-cache-${{ runner.os }}-python@3.12-poetry@1.8.2
 
       # virtualenv cache should depend on OS, Python version and `poetry.lock` (and optionally workflow files).
       - name: Cache Packages
         uses: actions/cache@v3
         with:
           path: ~/.local
-          key: poetry-local-${{ runner.os }}-3.12-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+          key: poetry-local-${{ runner.os }}-python@3.12-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
 
       - name: Install Poetry
         run: |
