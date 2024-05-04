@@ -1,28 +1,32 @@
+name: Use Python Poetry cache on GitHub Actions workflow
+
 on:
   push:
+    branches:
+      - main
 
 env:
   PYTHON_VERSION: "3.12"
   POETRY_VERSION: "1.8.2"
+  POETRY_URL: https://install.python-poetry.org
+  DB_HOST: 127.0.0.1
+  DB_PORT: 3306
+  DB_USER: root
+  DB_PASSWORD: 1234
+  DB_DATABASE: oz_django
 
 jobs:
-  ci:
+  CI:
     runs-on: ubuntu-20.04
-    env:
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: 1234
-      DB_DATABASE: oz_django
     steps:
-      - name: Checkout the codes
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Setup python environment
-        id: setup-python
-        uses: actions/setup-python@v2
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+        id: setup_python
 
       - name: Set timezone to KST
         run: |
@@ -35,27 +39,27 @@ jobs:
           mysql -e "use mysql; FLUSH PRIVILEGES; ALTER USER '${{ env.DB_USER }}'@'localhost' IDENTIFIED BY '${{ env.DB_PASSWORD }}';" -uroot -proot
           mysql -e 'CREATE DATABASE ${{ env.DB_DATABASE }};' -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }}
 
+      # Poetry cache depends on OS, Python version and Poetry version.
       - name: Cache Poetry cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/poetry
-          key: poetry-cache-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ env.POETRY_VERSION }}
+          path: ~/.cache/pypoetry
+          key: poetry-cache-${{ runner.os }}-${{ steps.setup_python.outputs.python-version }}-${{ env.POETRY_VERSION }}
 
-      # virtualenv cache should depend on OS, Python version and `poetry.lock` (and optionally workflow files).
+      # virtualenv cache should depends on OS, Python version and `poetry.lock` (and optionally workflow files).
       - name: Cache Packages
         uses: actions/cache@v3
         with:
           path: ~/.local
-          key: poetry-local-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
+          key: poetry-local-${{ runner.os }}-${{ steps.setup_python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/*.yml') }}
 
-      - name: Install Poetry
+      - name: Install Poetry ${{ env.POETRY_VERSION }}
         run: |
-          curl -sSL curl -sSL https://install.python-poetry.org | python3 -
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          curl -sSL ${{ env.POETRY_URL }} | python - --version ${{ env.POETRY_VERSION }}
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       - name: Run black
         run: |
@@ -68,4 +72,3 @@ jobs:
       - name: Run mypy
         run: |
           poetry run mypy .
-          
