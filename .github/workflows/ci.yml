@@ -1,6 +1,10 @@
 on:
   push:
 
+env:
+  PYTHON_VERSION: "3.12"
+  POETRY_VERSION: "1.8.2"
+
 jobs:
   ci:
     runs-on: ubuntu-20.04
@@ -34,8 +38,8 @@ jobs:
       - name: Cache Poetry cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pypoetry
-          key: poetry-cache-${{ runner.os }}-python@3.12-poetry@1.8.2
+          path: ~/.cache/poetry
+          key: poetry-cache-${{ runner.os }}-${{ steps.setup_python.outputs.python-version }}-${{ env.POETRY_VERSION }}
 
       # virtualenv cache should depend on OS, Python version and `poetry.lock` (and optionally workflow files).
       - name: Cache Packages
