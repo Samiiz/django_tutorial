@@ -22,7 +22,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ env.POETRY_VERSION }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Set timezone to KST
         run: |
